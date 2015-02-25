@@ -699,6 +699,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
 	if (unlikely(ffs->state == FFS_CLOSING))
 		return -EBUSY;
 
+	smp_mb__before_atomic();
 	if (atomic_read(&ffs->opened))
 		return -EBUSY;
 
@@ -1396,6 +1397,7 @@ static void ffs_data_get(struct ffs_data *ffs)
 {
 	ENTER();
 
+	smp_mb__before_atomic();
 	atomic_inc(&ffs->ref);
 }
 
@@ -1403,6 +1405,7 @@ static void ffs_data_opened(struct ffs_data *ffs)
 {
 	ENTER();
 
+	smp_mb__before_atomic();
 	atomic_inc(&ffs->ref);
 	atomic_inc(&ffs->opened);
 }
@@ -1411,6 +1414,7 @@ static void ffs_data_put(struct ffs_data *ffs)
 {
 	ENTER();
 
+	smp_mb__before_atomic();
 	if (unlikely(atomic_dec_and_test(&ffs->ref))) {
 		pr_info("%s(): freeing\n", __func__);
 		ffs_data_clear(ffs);
@@ -1425,6 +1429,7 @@ static void ffs_data_closed(struct ffs_data *ffs)
 {
 	ENTER();
 
+	smp_mb__before_atomic();
 	if (atomic_dec_and_test(&ffs->opened)) {
 		ffs->state = FFS_CLOSING;
 		ffs_data_reset(ffs);
@@ -1468,8 +1473,8 @@ static void ffs_data_clear(struct ffs_data *ffs)
 
 	/* Dump ffs->gadget and ffs->flags */
 	if (ffs->gadget)
-		pr_err("%s: ffs->gadget= %pK, ffs->flags= %lu\n", __func__,
-						ffs->gadget, ffs->flags);
+		pr_err("%s: ffs:%pK ffs->gadget= %pK, ffs->flags= %lu\n",
+				__func__, ffs, ffs->gadget, ffs->flags);
 	BUG_ON(ffs->gadget);
 
 	if (ffs->epfiles)
