@@ -260,6 +260,7 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
 #endif
 
 
+#ifndef __ASSEMBLY__
 static __always_inline void data_access_exceeds_word_size(void)
 {
 }
@@ -303,6 +304,7 @@ static __always_inline void __write_once_size(volatile void *p, void *res, int s
 
 #define WRITE_ONCE(x, val) \
 	({ typeof(x) __val = (val); __write_once_size(&(x), &__val, sizeof(__val)); __val; })
+#endif /* !__ASSEMBLY__ */
 
 #endif /* __KERNEL__ */
 
