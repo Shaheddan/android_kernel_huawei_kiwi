@@ -3232,7 +3232,8 @@ static void binder_transaction(struct binder_proc *proc,
 		u32 secid;
 		int max_retries = 100;
 
-		security_cred_getsecid(binder_get_cred(proc), &secid);
+		/* 3.10 lacks security_cred_getsecid(); task sid is the same value */
+		security_task_getsecid(proc->tsk, &secid);
  retry_alloc:
 		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
 		if (ret == -ENOMEM && max_retries-- > 0) {

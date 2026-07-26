@@ -142,6 +142,13 @@ void __wake_up_sync_key(wait_queue_head_t *q, unsigned int mode, int nr,
 			void *key);
 void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr);
 void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr);
+void __wake_up_pollfree(wait_queue_head_t *wq_head);
+
+static inline void wake_up_pollfree(wait_queue_head_t *wq_head)
+{
+	if (waitqueue_active(wq_head))
+		__wake_up_pollfree(wq_head);
+}
 void __wake_up_bit(wait_queue_head_t *, void *, int);
 int __wait_on_bit(wait_queue_head_t *, struct wait_bit_queue *, int (*)(void *), unsigned);
 int __wait_on_bit_lock(wait_queue_head_t *, struct wait_bit_queue *, int (*)(void *), unsigned);
