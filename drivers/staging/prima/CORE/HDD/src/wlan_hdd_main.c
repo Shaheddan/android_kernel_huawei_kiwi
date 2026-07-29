@@ -9195,6 +9195,23 @@ VOS_STATUS hdd_close_adapter( hdd_context_t *pHddCtx, hdd_adapter_t *pAdapter,
    if( VOS_STATUS_SUCCESS == status )
    {
       wlan_hdd_clear_concurrency_mode(pHddCtx, pAdapter->device_mode);
+
+      /* The SoftAP/P2P-GO adapter is going away for good here. hdd_stop_adapter()
+       * is the only other place that restores con_mode, and Android 12's wifi HAL
+       * DELETES the AP interface instead of switching it back to station type, so
+       * con_mode could remain 1 (SoftAP) for the rest of the boot - after which
+       * prima creates softap.0 and never registers wlan0 again, and only a reboot
+       * clears it. The concurrency mask has just been cleared for this adapter,
+       * so this is the correct point to restore station mode.
+       */
+      if (((WLAN_HDD_SOFTAP == pAdapter->device_mode) ||
+           (WLAN_HDD_P2P_GO == pAdapter->device_mode)) &&
+          !(hdd_get_concurrency_mode() & (VOS_SAP | VOS_P2P_GO)))
+      {
+         hddLog(VOS_TRACE_LEVEL_INFO,
+                FL("SoftAP adapter closed; restoring con_mode to STA"));
+         hdd_set_conparam(0);
+      }
       hdd_cleanup_adapter( pHddCtx, pAdapterNode->pAdapter, rtnl_held );
 
 #ifdef FEATURE_WLAN_TDLS
