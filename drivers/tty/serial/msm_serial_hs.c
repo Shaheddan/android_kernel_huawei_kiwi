@@ -1191,7 +1191,7 @@ static void msm_hs_set_termios(struct uart_port *uport,
 	msm_hs_write(uport, UART_DM_CR, START_TX_BAM_IFC);
 
 	if (msm_uport->rx.flush == FLUSH_NONE) {
-		flush_kthread_worker(&msm_uport->rx.kworker);
+		kthread_flush_worker(&msm_uport->rx.kworker);
 		msm_uport->rx.flush = FLUSH_DATA_INVALID;
 		/* Ensure register IO completion */
 		mb();
