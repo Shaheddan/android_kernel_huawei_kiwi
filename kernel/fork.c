@@ -1600,7 +1600,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 */
 	retval = cgroup_can_fork(p);
 	if (retval)
-		goto bad_fork_free_pid;
+		goto bad_fork_put_pidfd;
 
 	/*
 	 * Ok, make it visible to the rest of the system.
