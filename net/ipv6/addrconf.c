@@ -4089,8 +4089,10 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
 		return -EMSGSIZE;
 	}
 
-	if (nla_put_u32(skb, IFA_FLAGS, ifa->flags) < 0)
-		goto error;
+	if (nla_put_u32(skb, IFA_FLAGS, ifa->flags) < 0) {
+		nlmsg_cancel(skb, nlh);
+		return -EMSGSIZE;
+	}
 
 	return nlmsg_end(skb, nlh);
 }
