@@ -14,6 +14,10 @@
 	qcom,battery-data = <&qrd_batterydata>;
 	qcom,use-ext-charger;
 	qcom,resume-soc = <99>;
+	/* kiwi: count charge cycles (every SOC rise added up, one cycle per 100 %), kept in
+	 * the PMIC BMS storage registers so the count survives reboots and reflashes. The
+	 * driver only counts; it does not use the count for the SOC calculation. */
+	qcom,batt-aging-comp;
 };
 
 &pm8916_chg {
