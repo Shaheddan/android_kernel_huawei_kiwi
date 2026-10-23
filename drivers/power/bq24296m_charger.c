@@ -3239,6 +3239,7 @@ static enum power_supply_property bq24296m_power_supply_props[] =
         POWER_SUPPLY_PROP_PRESENT,
         POWER_SUPPLY_PROP_CHARGING_ENABLED,
         POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN,
+        POWER_SUPPLY_PROP_CYCLE_COUNT,
         POWER_SUPPLY_PROP_TECHNOLOGY,
         POWER_SUPPLY_PROP_RESUME_CHARGING,
         POWER_SUPPLY_PROP_HOT_IBAT_LIMIT,
@@ -3305,6 +3306,13 @@ static int bq24296m_power_supply_get_property(struct power_supply *psy,
 
     case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
         bq24296m_charger_get_ext_property(di->bms_psy, POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN, val);
+        break;
+
+    /* kiwi: the vm-bms counts charge cycles on its own "bms" supply, which healthd never
+     * reads (it only looks at Battery-type supplies). Forward the count here so the health
+     * HAL and BatteryManager.EXTRA_CYCLE_COUNT get it. An error from the bms reads as 0. */
+    case POWER_SUPPLY_PROP_CYCLE_COUNT:
+        bq24296m_charger_get_ext_property(di->bms_psy, POWER_SUPPLY_PROP_CYCLE_COUNT, val);
         break;
 
     case POWER_SUPPLY_PROP_RESUME_CHARGING:
